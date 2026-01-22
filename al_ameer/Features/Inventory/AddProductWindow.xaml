@@ -1,0 +1,77 @@
+﻿<Window x:Class="al_ameer.Features.Inventory.AddProductWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Product" Height="720" Width="480"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="CenterOwner">
+
+    <Border CornerRadius="25" Background="#1A1B1E" BorderBrush="#33FFFFFF" BorderThickness="1">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="ADD NEW PRODUCT" Foreground="#FFD700" FontSize="20" FontWeight="Black" Margin="0,0,0,20"/>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <TextBlock Text="Product Name" Foreground="#80FFFFFF" Margin="0,10,0,5"/>
+                    <TextBox x:Name="txtProductName" Style="{StaticResource ModernInputStyle}"/>
+
+                    <TextBlock Text="Barcode" Foreground="#80FFFFFF" Margin="0,10,0,5"/>
+                    <TextBox x:Name="txtBarcode" Style="{StaticResource ModernInputStyle}"/>
+
+                    <UniformGrid Columns="2" Margin="0,10,0,0">
+                        <StackPanel Margin="0,0,5,0">
+                            <TextBlock Text="Category" Foreground="#80FFFFFF" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cbCategory" DisplayMemberPath="CategoryName" SelectedValuePath="CategoryId" Height="38"/>
+                        </StackPanel>
+                        <StackPanel Margin="5,0,0,0">
+                            <TextBlock Text="Supplier" Foreground="#80FFFFFF" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cbSupplier" DisplayMemberPath="CompanyName" SelectedValuePath="SupplierId" Height="38"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <UniformGrid Columns="2" Margin="0,10,0,0">
+                        <StackPanel Margin="0,0,5,0">
+                            <TextBlock Text="Cost Price" Foreground="#80FFFFFF"/>
+                            <TextBox x:Name="txtCost" Style="{StaticResource ModernInputStyle}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Margin="5,0,0,0">
+                            <TextBlock Text="Selling Price" Foreground="#80FFFFFF"/>
+                            <TextBox x:Name="txtPrice" Style="{StaticResource ModernInputStyle}" Text="0"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <TextBlock Text="Stock Quantity" Foreground="#80FFFFFF" Margin="0,10,0,5"/>
+                    <TextBox x:Name="txtStock" Style="{StaticResource ModernInputStyle}" Text="0"/>
+
+                    <CheckBox x:Name="chkIsTire" Content="This item is a Tire" Foreground="White" Margin="0,20,0,10" Checked="TireToggle_Changed" Unchecked="TireToggle_Changed"/>
+
+                    <StackPanel x:Name="pnlTireSpecs" Visibility="Collapsed">
+                        <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="Width" Foreground="#80FFFFFF"/>
+                                <TextBox x:Name="txtWidth" Style="{StaticResource ModernInputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Margin="5,0,5,0">
+                                <TextBlock Text="Ratio" Foreground="#80FFFFFF"/>
+                                <TextBox x:Name="txtRatio" Style="{StaticResource ModernInputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="Diam." Foreground="#80FFFFFF"/>
+                                <TextBox x:Name="txtDiameter" Style="{StaticResource ModernInputStyle}"/>
+                            </StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="2" Margin="0,20,0,0">
+                <Button Content="Save to Inventory" Height="45" Click="Save_Click" Style="{StaticResource ModernButtonStyle}"/>
+                <Button Content="Cancel" Foreground="#FF6B6B" Background="Transparent" BorderThickness="0" Margin="0,10,0,0" Click="Cancel_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,60 @@
+﻿<Page x:Class="al_ameer.Features.Expenses.ExpensesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Expenses" Background="Transparent">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,30">
+            <StackPanel>
+                <TextBlock Text="FINANCE" Foreground="#9CA3AF" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="Expense Tracking" Foreground="White" FontSize="28" FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="+ ADD EXPENSE" Width="180" Height="45" 
+                        Background="#FFD700" Foreground="Black" FontWeight="Bold" Click="AddExpense_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Background="#1A1A1E" CornerRadius="15" Padding="15">
+            <DataGrid x:Name="dgExpenses" AutoGenerateColumns="False" Background="Transparent" 
+                      BorderThickness="0" GridLinesVisibility="None" RowHeight="65" 
+                      HeadersVisibility="Column" CanUserAddRows="False">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#9CA3AF"/>
+                        <Setter Property="Padding" Value="10,15"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="#2A2A2F"/>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="DATE" Binding="{Binding ExpenseDate, StringFormat=\{0:dd/MM/yyyy\}}" Width="150"/>
+                    <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="150"/>
+                    <DataGridTextColumn Header="DESCRIPTION" Binding="{Binding Description}" Width="*"/>
+                    <DataGridTextColumn Header="AMOUNT" Binding="{Binding Amount, StringFormat={}{0:N0} LBP}" Width="180">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="#EF4444"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</Page>
