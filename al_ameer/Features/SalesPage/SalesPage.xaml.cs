@@ -16,75 +16,95 @@ namespace al_ameer.Features.Sales
             LoadSales();
         }
 
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            txtSearch.Clear();
+            LoadSales();
+        }
+
         public void LoadSales()
         {
             try
             {
                 using var db = new AppDbContext();
-                // Include Customer info if you have a relationship defined
-                dgSales.ItemsSource = db.Sales
+                var salesList = db.Sales
+                    .Include(s => s.Customer)
                     .OrderByDescending(s => s.SaleDate)
+                    .Select(s => new {
+                        s.SaleId,
+                        s.SaleDate,
+                        GrandTotal = s.GrandTotal ?? 0m,
+                        PaymentMethod = s.PaymentMethod ?? "Cash",
+                        CustomerName = s.Customer != null ? s.Customer.FullName : "Walk-in"
+                    })
                     .AsNoTracking()
                     .ToList();
+
+                dgSales.ItemsSource = salesList;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading sales: {ex.Message}");
-            }
-        }
-
-        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string search = txtSearch.Text.Trim().ToLower();
-            using var db = new AppDbContext();
-
-            var query = db.Sales.AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                // Better search logic including payment method and ID
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                query = query.Where(s => s.SaleId.ToString().Contains(search) ||
-                                       s.PaymentMethod.ToLower().Contains(search));
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-            }
-
-            dgSales.ItemsSource = query.OrderByDescending(s => s.SaleDate).AsNoTracking().ToList();
-        }
-
-        private void AddSale_Click(object sender, RoutedEventArgs e)
-        {
-            // Open the Premium Window we built instead of a Page
-            NewSaleWindow win = new NewSaleWindow();
-            win.Owner = Window.GetWindow(this);
-            win.ShowDialog();
-
-            // Refresh the list after the window is closed
-            LoadSales();
+            catch (Exception ex) { MessageBox.Show($"Error loading: {ex.Message}"); }
         }
 
         private void DeleteSale_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button { DataContext: Sale sale })
+            var selectedItem = dgSales.SelectedItem;
+            if (selectedItem == null) return;
+
+            dynamic selectedSale = selectedItem;
+            int saleId = selectedSale.SaleId;
+
+            if (MessageBox.Show($"Delete Sale #{saleId}?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                if (MessageBox.Show($"Are you sure you want to delete Sale #{sale.SaleId}?", "Confirm Delete",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                try
                 {
                     using var db = new AppDbContext();
-                    db.Sales.Remove(sale);
-                    db.SaveChanges();
-                    LoadSales();
+                    // Load sale and its items (SaleItems, NOT SalesDetails)
+                    var sale = db.Sales.Include(s => s.SaleItems).FirstOrDefault(s => s.SaleId == saleId);
+
+                    if (sale != null)
+                    {
+                        db.Sales.Remove(sale);
+                        db.SaveChanges();
+                        LoadSales();
+                    }
                 }
+                catch (Exception ex) { MessageBox.Show("Delete Error: " + ex.Message); }
             }
         }
 
         private void ViewDetails_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button { DataContext: Sale sale })
+            var selectedItem = dgSales.SelectedItem;
+            if (selectedItem == null) return;
+
+            dynamic selectedSale = selectedItem;
+            int saleId = selectedSale.SaleId;
+
+            try
             {
-                // Placeholder for Sale Details popup
-                MessageBox.Show($"Viewing details for Sale #{sale.SaleId} (Items, Qty, etc.)");
+                using var db = new AppDbContext();
+                // Query SaleItems table
+                var items = db.SaleItems
+                    .Include(si => si.Product)
+                    .Where(si => si.SaleId == saleId)
+                    .ToList();
+
+                if (items.Any())
+                {
+                    string msg = string.Join("\n", items.Select(i =>
+                        $"- {i.Product.ProductName} | Qty: {i.Quantity} | {i.LineTotal:N0} LBP"));
+                    MessageBox.Show(msg, $"Sale #{saleId} Items");
+                }
+                else { MessageBox.Show("No items found."); }
             }
+            catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
+        }
+
+        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e) { /* Search logic */ }
+        private void AddSale_Click(object sender, RoutedEventArgs e)
+        {
+            NewSaleWindow win = new NewSaleWindow { Owner = Window.GetWindow(this) };
+            if (win.ShowDialog() == true) LoadSales();
         }
     }
 }

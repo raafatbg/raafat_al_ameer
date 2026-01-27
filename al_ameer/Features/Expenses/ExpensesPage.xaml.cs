@@ -16,15 +16,25 @@ namespace al_ameer.Features.Expenses
             LoadExpenses();
         }
 
-        // Method to load data into the DataGrid
-        public void LoadExpenses()
+        public void LoadExpenses(string filter = "")
         {
             try
             {
                 using (SqlConnection conn = new SqlConnection(connString))
                 {
-                    string query = "SELECT ExpenseDate, Category, Description, Amount FROM Expenses ORDER BY ExpenseDate DESC";
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                    // FIXED Query: Includes ExpenseID for the delete button to work
+                    string query = "SELECT ExpenseID, ExpenseDate, Category, Description, Amount FROM Expenses";
+
+                    if (!string.IsNullOrEmpty(filter))
+                        query += " WHERE Category LIKE @f OR Description LIKE @f";
+
+                    query += " ORDER BY ExpenseDate DESC";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    if (!string.IsNullOrEmpty(filter))
+                        cmd.Parameters.AddWithValue("@f", $"%{filter}%");
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
                     dgExpenses.ItemsSource = dt.DefaultView;
@@ -36,20 +46,44 @@ namespace al_ameer.Features.Expenses
             }
         }
 
-        // FIXED: The missing method that your XAML is looking for
         private void AddExpense_Click(object sender, RoutedEventArgs e)
         {
-            // We create the window
-            AddExpenseWindow win = new AddExpenseWindow();
-
-            // Set the owner so it centers correctly over the app
-            win.Owner = Window.GetWindow(this);
-
-            // Show as a popup and refresh the list if saved successfully
+            AddExpenseWindow win = new AddExpenseWindow { Owner = Window.GetWindow(this) };
             if (win.ShowDialog() == true)
             {
                 LoadExpenses();
             }
+        }
+
+        private void DeleteExpense_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag != null)
+            {
+                if (MessageBox.Show("Are you sure you want to delete this expense?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        using (SqlConnection conn = new SqlConnection(connString))
+                        {
+                            string query = "DELETE FROM Expenses WHERE ExpenseID = @id";
+                            SqlCommand cmd = new SqlCommand(query, conn);
+                            cmd.Parameters.AddWithValue("@id", btn.Tag);
+                            conn.Open();
+                            cmd.ExecuteNonQuery();
+                            LoadExpenses(txtSearch.Text);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Delete Error: " + ex.Message);
+                    }
+                }
+            }
+        }
+
+        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            LoadExpenses(txtSearch.Text.Trim());
         }
     }
 }

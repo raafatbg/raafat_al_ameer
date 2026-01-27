@@ -13,26 +13,25 @@
             <Border Width="400" Height="45" Background="#1A1A1A" CornerRadius="10" 
                     BorderBrush="#33FFD700" BorderThickness="1">
                 <Grid>
-                    <TextBlock Text="Search by Sale ID or Date..." Foreground="#50FFFFFF" 
-                               VerticalAlignment="Center" Margin="15,0" IsHitTestVisible="False"
-                               Visibility="{Binding ElementName=txtSearch, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <TextBox x:Name="txtSearch" Background="Transparent" BorderThickness="0" 
                              Foreground="White" VerticalContentAlignment="Center" Margin="15,0" 
                              CaretBrush="#FFD700" TextChanged="txtSearch_TextChanged"/>
                 </Grid>
             </Border>
 
-            <Button Content="+ NEW SALE (POS)" 
-                    Style="{StaticResource ModernButtonStyle}" 
-                    Width="180" Height="45" Margin="25,0" 
-                    Click="AddSale_Click"/>
+            <Button Content="Refresh"  Click="Refresh_Click" 
+                    Background="Transparent" Foreground="#FFD700" FontSize="14" 
+                    Width="110" Height="45" Margin="15,0" Cursor="Hand" />
+
+            <Button Content="+ NEW SALE (POS)" Style="{StaticResource ModernButtonStyle}" 
+                    Width="180" Height="45" Click="AddSale_Click"/>
         </StackPanel>
 
         <Border Grid.Row="1" Background="#1A1A1A" CornerRadius="15" BorderBrush="#20FFD700" BorderThickness="1">
             <DataGrid x:Name="dgSales" Background="Transparent" Foreground="White" 
                       AutoGenerateColumns="False" CanUserAddRows="False" RowHeight="55" 
                       ColumnHeaderHeight="45" BorderThickness="0" GridLinesVisibility="Horizontal" 
-                      HorizontalGridLinesBrush="#10FFD700">
+                      HorizontalGridLinesBrush="#10FFD700" RowBackground="Transparent">
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#121212"/>
@@ -42,20 +41,13 @@
                         <Setter Property="BorderThickness" Value="0,0,0,1"/>
                         <Setter Property="BorderBrush" Value="#FFD700"/>
                     </Style>
-                    <Style TargetType="DataGridRow">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#15FFD700"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
                 </DataGrid.Resources>
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Sale ID" Binding="{Binding SaleId}" Width="100"/>
-                    <DataGridTextColumn Header="Date &amp; Time" Binding="{Binding SaleDate, StringFormat=\{0:dd/MM/yyyy HH:mm\}}" Width="200"/>
-                    <DataGridTextColumn Header="Payment" Binding="{Binding PaymentMethod}" Width="120"/>
+                    <DataGridTextColumn Header="Date &amp; Time" Binding="{Binding SaleDate, StringFormat=\{0:dd/MM/yyyy HH:mm\}}" Width="180"/>
+                    <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="110"/>
+                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="180"/>
 
                     <DataGridTextColumn Header="Total Amount" 
                                         Binding="{Binding GrandTotal, StringFormat={}{0:N0} LBP}" 
@@ -69,11 +61,11 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTemplateColumn Header="Actions" Width="150">
+                    <DataGridTemplateColumn Header="Actions" Width="180">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="View Items" Background="Transparent" Foreground="#FFD700" 
+                                    <Button Content="View Details" Background="Transparent" Foreground="#FFD700" 
                                             BorderThickness="0" Cursor="Hand" Click="ViewDetails_Click"/>
                                     <Button Content="Delete" Background="Transparent" Foreground="#FF6B6B" 
                                             BorderThickness="0" Margin="10,0" Cursor="Hand" Click="DeleteSale_Click"/>

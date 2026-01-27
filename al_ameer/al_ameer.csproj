@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="assets\Images\photo-1549317661-bd32c8ce0db2.jpg" />
+    <None Remove="assets\Images\photo-1618843479313-40f8afb4b4d8.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Core\Auth\" />
     <Folder Include="Core\Sevices\" />
   </ItemGroup>
@@ -17,6 +22,11 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\Images\photo-1549317661-bd32c8ce0db2.jpg" />
+    <Resource Include="assets\Images\photo-1618843479313-40f8afb4b4d8.jpg" />
   </ItemGroup>
 
 </Project>

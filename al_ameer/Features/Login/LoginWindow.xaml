@@ -10,7 +10,7 @@
 
     <Border CornerRadius="30" ClipToBounds="True">
         <Grid>
-            <Image Source="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&amp;w=2070&amp;auto=format&amp;fit=crop" 
+            <Image Source="/assets/Images/photo-1549317661-bd32c8ce0db2.jpg" 
                    Stretch="UniformToFill">
                 <Image.Effect>
                     <BlurEffect Radius="20"/>

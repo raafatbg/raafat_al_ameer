@@ -9,7 +9,7 @@ using al_ameer.Features.Customers;
 using al_ameer.Features.Suppliers;
 using al_ameer.Features.Expenses;
 using al_ameer.Features.Reports; // Make sure this namespace exists
-using al_ameer.Features.Settings; // Make sure this namespace exists
+
 
 namespace al_ameer.Features.Home
 {
@@ -80,11 +80,6 @@ namespace al_ameer.Features.Home
             MainFrame.Navigate(new ReportsPage());
         }
 
-        private void NavSettings_Click(object sender, RoutedEventArgs e)
-        {
-            txtPageTitle.Text = "System Configuration";
-            MainFrame.Navigate(new SettingsPage());
-        }
 
         #endregion
 

@@ -54,7 +54,7 @@
 
     <Border x:Name="MainBorder" CornerRadius="30" ClipToBounds="True" BorderThickness="1" BorderBrush="#33FFFFFF">
         <Grid>
-            <Image Source="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&amp;w=2070&amp;auto=format&amp;fit=crop" 
+            <Image Source="/assets/Images/photo-1618843479313-40f8afb4b4d8.jpg" 
                    Stretch="UniformToFill" HorizontalAlignment="Center">
                 <Image.Effect>
                     <BlurEffect Radius="15"/>
@@ -104,7 +104,6 @@
 
                             <TextBlock Text="ADMINISTRATION" Foreground="#40FFFFFF" FontSize="10" FontWeight="Bold" Margin="40,30,0,12"/>
                             <RadioButton Style="{StaticResource EliteMenuStyle}" Content="Reports" Click="NavReports_Click"/>
-                            <RadioButton Style="{StaticResource EliteMenuStyle}" Content="Settings" Click="NavSettings_Click"/>
                         </StackPanel>
 
                         <Button Grid.Row="2" Background="Transparent" BorderThickness="0" Margin="40,0" HorizontalAlignment="Left" Click="Logout_Click" Cursor="Hand">

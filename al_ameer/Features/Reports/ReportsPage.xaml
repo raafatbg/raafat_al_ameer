@@ -1,7 +1,7 @@
 ﻿<Page x:Class="al_ameer.Features.Reports.ReportsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Financial Reports" Background="Transparent">
+      Title="Financial Reports" Background="#0F0F12">
 
     <Grid Margin="40">
         <Grid.RowDefinitions>
@@ -17,6 +17,10 @@
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,64,0,0">
+                <Button Content="" FontFamily="Segoe MDL2 Assets" Click="Refresh_Click" 
+                        Background="Transparent" Foreground="#FFD700" FontSize="20" 
+                        Width="50" Height="45" Margin="0,0,20,0" ToolTip="Refresh Data" BorderThickness="0"/>
+
                 <TextBlock Text="Filter Month:" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,15,0" FontSize="16"/>
                 <DatePicker x:Name="dpFilter" Width="180" Height="45" VerticalContentAlignment="Center" 
                             SelectedDateChanged="DateChanged" FontSize="16"/>
@@ -39,14 +43,12 @@
                     <TextBlock x:Name="lblTotalRevenue" Text="0 LBP" Foreground="White" FontSize="38" FontWeight="Bold" Margin="0,15,0,0"/>
                 </StackPanel>
             </Border>
-
             <Border Background="#1A1A1E" CornerRadius="20" Margin="7,0,7,0" Padding="30">
                 <StackPanel>
                     <TextBlock Text="TOTAL EXPENSES" Foreground="#9CA3AF" FontSize="14" FontWeight="Bold"/>
                     <TextBlock x:Name="lblTotalExpenses" Text="0 LBP" Foreground="#EF4444" FontSize="38" FontWeight="Bold" Margin="0,15,0,0"/>
                 </StackPanel>
             </Border>
-
             <Border Background="#1A1A1E" CornerRadius="20" Margin="15,0,0,0" Padding="30" BorderBrush="#FFD700" BorderThickness="1">
                 <StackPanel>
                     <TextBlock Text="NET PROFIT" Foreground="#FFD700" FontSize="14" FontWeight="Bold"/>
@@ -64,9 +66,28 @@
                 <TextBlock Text="DAILY PERFORMANCE LOG" Foreground="#9CA3AF" FontWeight="Bold" Margin="10,0,0,20"/>
 
                 <DataGrid Grid.Row="1" x:Name="dgProfitReport" Background="Transparent" BorderThickness="0" 
-                          HeadersVisibility="Column" GridLinesVisibility="None" RowHeight="70" 
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="70" 
+                          HorizontalGridLinesBrush="#10FFD700" RowBackground="Transparent"
                           AutoGenerateColumns="False" FontSize="18" Foreground="White" 
                           IsReadOnly="True" HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#121212"/>
+                            <Setter Property="Foreground" Value="#FFD700"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="#FFD700"/>
+                            <Setter Property="Padding" Value="12,0"/>
+                        </Style>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#15FFD700"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="DATE" Binding="{Binding ReportDate, StringFormat=\{0:dd MMMM yyyy\}}" Width="2*"/>
                         <DataGridTextColumn Header="SALES" Binding="{Binding DailySales, StringFormat={}{0:N0} LBP}" Width="*"/>

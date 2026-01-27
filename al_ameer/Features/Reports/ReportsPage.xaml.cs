@@ -5,11 +5,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Linq;
 
 namespace al_ameer.Features.Reports
 {
     public partial class ReportsPage : Page
     {
+        // Database connection string
         private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
 
         public ReportsPage()
@@ -19,14 +21,27 @@ namespace al_ameer.Features.Reports
             LoadDailyReportData();
         }
 
+        /// <summary>
+        /// Logic for the Refresh Button to reload data and reset filter
+        /// </summary>
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            dpFilter.SelectedDate = DateTime.Now;
+            LoadDailyReportData();
+        }
+
         private void DateChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (dpFilter != null)
+            // Only reload if the Page is fully initialized to prevent null reference crashes
+            if (this.IsLoaded)
             {
                 LoadDailyReportData();
             }
         }
 
+        /// <summary>
+        /// Fetches sales and expenses from DB and calculates totals
+        /// </summary>
         private void LoadDailyReportData()
         {
             try
@@ -35,7 +50,7 @@ namespace al_ameer.Features.Reports
                 {
                     conn.Open();
 
-                    // FIXED QUERY: Uses GrandTotal and groups strictly by Date
+                    // SQL logic: Full Outer Join ensures we see dates with ONLY sales or ONLY expenses
                     string query = @"
                         SELECT 
                             ISNULL(s.Date, e.Date) as ReportDate,
@@ -56,35 +71,47 @@ namespace al_ameer.Features.Reports
                     DataTable dt = new DataTable();
                     da.Fill(dt);
 
-                    // Apply Date Filtering if a date is selected
+                    // Handle Date Filtering
                     DataView dv = dt.DefaultView;
                     if (dpFilter.SelectedDate.HasValue)
                     {
                         DateTime filterDate = dpFilter.SelectedDate.Value.Date;
+                        // Filters the view to show only the selected day
                         dv.RowFilter = $"ReportDate = '{filterDate:yyyy-MM-dd}'";
                     }
 
+                    // Update the Dark UI Grid
                     dgProfitReport.ItemsSource = dv;
 
-                    // Calculate KPIs based on the filtered view
-                    decimal rev = 0, exp = 0;
+                    // Recalculate KPI Summaries based on the filtered results
+                    decimal totalRev = 0;
+                    decimal totalExp = 0;
+
                     foreach (DataRowView row in dv)
                     {
-                        rev += Convert.ToDecimal(row["DailySales"]);
-                        exp += Convert.ToDecimal(row["DailyExpenses"]);
+                        totalRev += Convert.ToDecimal(row["DailySales"]);
+                        totalExp += Convert.ToDecimal(row["DailyExpenses"]);
                     }
 
-                    lblTotalRevenue.Text = $"{rev:N0} LBP";
-                    lblTotalExpenses.Text = $"{exp:N0} LBP";
-                    lblNetProfit.Text = $"{(rev - exp):N0} LBP";
+                    lblTotalRevenue.Text = $"{totalRev:N0} LBP";
+                    lblTotalExpenses.Text = $"{totalExp:N0} LBP";
+                    lblNetProfit.Text = $"{(totalRev - totalExp):N0} LBP";
+
+                    // Highlight Net Profit color if negative
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    lblNetProfit.Foreground = (totalRev - totalExp) >= 0 ? Brushes.White : (SolidColorBrush)new BrushConverter().ConvertFrom("#EF4444");
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading daily tracker: " + ex.Message, "Al Ameer Tires");
+                MessageBox.Show("Report Error: " + ex.Message, "Database Connectivity Issue");
             }
         }
 
+        /// <summary>
+        /// Generates a FlowDocument for printing the current analytics view
+        /// </summary>
         private void PrintReport_Click(object sender, RoutedEventArgs e)
         {
             PrintDialog pd = new PrintDialog();
@@ -93,20 +120,36 @@ namespace al_ameer.Features.Reports
                 FlowDocument doc = new FlowDocument();
                 doc.PagePadding = new Thickness(50);
                 doc.Background = Brushes.White;
+                doc.FontFamily = new FontFamily("Segoe UI");
 
-                Paragraph title = new Paragraph(new Run("AL AMEER TIRES - DAILY PERFORMANCE REPORT"))
-                { FontSize = 22, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 30) };
+                Paragraph title = new Paragraph(new Run("AL AMEER TIRES - PERFORMANCE REPORT"))
+                {
+                    FontSize = 24,
+                    FontWeight = FontWeights.Bold,
+                    TextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 30)
+                };
                 doc.Blocks.Add(title);
 
-                doc.Blocks.Add(new Paragraph(new Run($"Printed On: {DateTime.Now:dd/MM/yyyy HH:mm}")));
+                doc.Blocks.Add(new Paragraph(new Run($"Report Date: {dpFilter.SelectedDate:dd/MM/yyyy}")));
+                doc.Blocks.Add(new Paragraph(new Run($"Generated On: {DateTime.Now:dd/MM/yyyy HH:mm}")));
 
-                Section summary = new Section() { BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1), Padding = new Thickness(0, 20, 0, 20), Margin = new Thickness(0, 20, 0, 40) };
+                // Professional Summary Box
+                Section summary = new Section()
+                {
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(0, 1, 0, 1),
+                    Padding = new Thickness(0, 20, 0, 20),
+                    Margin = new Thickness(0, 20, 0, 40)
+                };
                 summary.Blocks.Add(new Paragraph(new Run($"TOTAL REVENUE: {lblTotalRevenue.Text}")));
                 summary.Blocks.Add(new Paragraph(new Run($"TOTAL EXPENSES: {lblTotalExpenses.Text}")));
                 summary.Blocks.Add(new Paragraph(new Run($"NET PROFIT: {lblNetProfit.Text}")) { FontSize = 18, FontWeight = FontWeights.Bold });
                 doc.Blocks.Add(summary);
 
-                pd.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, "Daily Financial Report");
+                doc.Blocks.Add(new Paragraph(new Run("Thank you for using Al Ameer POS System.")) { FontStyle = FontStyles.Italic, TextAlignment = TextAlignment.Center });
+
+                pd.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, "Financial Report Print");
             }
         }
     }
