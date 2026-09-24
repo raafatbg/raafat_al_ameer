@@ -8,7 +8,7 @@ namespace al_ameer.Features.Customers
 {
     public partial class CustomersPage : Page
     {
-        private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connString = al_ameer.Data.DatabaseConfig.ConnectionString;
 
         public CustomersPage()
         {
@@ -22,7 +22,7 @@ namespace al_ameer.Features.Customers
             {
                 using (SqlConnection conn = new SqlConnection(connString))
                 {
-                    string query = "SELECT CustomerID, FullName, Phone, RegistrationDate FROM Customers";
+                    string query = "SELECT CustomerID, FullName, Phone, RegistrationDate, Note FROM Customers";
                     if (!string.IsNullOrEmpty(filter))
                     {
                         query += " WHERE FullName LIKE @filter OR Phone LIKE @filter";
@@ -49,9 +49,8 @@ namespace al_ameer.Features.Customers
 
         private void AddCustomer_Click(object sender, RoutedEventArgs e)
         {
-            // Placeholder: Replace with your actual AddCustomerWindow call
-            MessageBox.Show("Open Add Customer Window");
-            LoadCustomers();
+            var window = new AddCustomerWindow { Owner = Window.GetWindow(this) };
+            if (window.ShowDialog() == true) LoadCustomers(txtSearch.Text.Trim());
         }
 
         private void EditCustomer_Click(object sender, RoutedEventArgs e)
@@ -59,8 +58,9 @@ namespace al_ameer.Features.Customers
             if (dgCustomers.SelectedItem is DataRowView row)
             {
                 int id = (int)row["CustomerID"];
-                MessageBox.Show($"Editing Customer ID: {id}");
-                // LoadCustomers();
+                var window = new AddCustomerWindow(id, row["FullName"].ToString(), row["Phone"].ToString(), row["Note"].ToString())
+                    { Owner = Window.GetWindow(this) };
+                if (window.ShowDialog() == true) LoadCustomers(txtSearch.Text.Trim());
             }
         }
 
@@ -70,8 +70,17 @@ namespace al_ameer.Features.Customers
             {
                 if (MessageBox.Show("Delete this customer?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    // Add SQL Delete logic here
-                    LoadCustomers();
+                    try
+                    {
+                        using var conn = new SqlConnection(connString);
+                        conn.Open();
+                        using var cmd = new SqlCommand("DELETE FROM Customers WHERE CustomerId=@id AND NOT EXISTS (SELECT 1 FROM Sales WHERE CustomerId=@id)", conn);
+                        cmd.Parameters.AddWithValue("@id", (int)row["CustomerID"]);
+                        if (cmd.ExecuteNonQuery() == 0)
+                            MessageBox.Show("This customer has sales history and cannot be deleted.");
+                        else LoadCustomers(txtSearch.Text.Trim());
+                    }
+                    catch (Exception ex) { MessageBox.Show("Delete failed: " + ex.Message); }
                 }
             }
         }

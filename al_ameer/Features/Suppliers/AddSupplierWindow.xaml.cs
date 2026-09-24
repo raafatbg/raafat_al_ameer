@@ -7,7 +7,7 @@ namespace al_ameer.Features.Suppliers
 {
     public partial class AddSupplierWindow : Window
     {
-        private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connString = al_ameer.Data.DatabaseConfig.ConnectionString;
 
         public AddSupplierWindow()
         {

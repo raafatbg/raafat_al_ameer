@@ -35,14 +35,28 @@
 
                     <UniformGrid Columns="2" Margin="0,10,0,0">
                         <StackPanel Margin="0,0,5,0">
+                            <TextBlock Text="Price Currency" Foreground="#80FFFFFF"/>
+                            <ComboBox x:Name="cbCurrency" Height="38" SelectedIndex="0" SelectionChanged="PricingInput_Changed">
+                                <ComboBoxItem Content="LBP"/><ComboBoxItem Content="USD"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="5,0,0,0">
+                            <TextBlock Text="LBP per USD" Foreground="#80FFFFFF"/>
+                            <TextBox x:Name="txtExchangeRate" Style="{StaticResource ModernInputStyle}" TextChanged="PricingInput_Changed"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <UniformGrid Columns="2" Margin="0,10,0,0">
+                        <StackPanel Margin="0,0,5,0">
                             <TextBlock Text="Cost Price" Foreground="#80FFFFFF"/>
-                            <TextBox x:Name="txtCost" Style="{StaticResource ModernInputStyle}" Text="0"/>
+                            <TextBox x:Name="txtCost" Style="{StaticResource ModernInputStyle}" Text="0" TextChanged="PricingInput_Changed"/>
                         </StackPanel>
                         <StackPanel Margin="5,0,0,0">
                             <TextBlock Text="Selling Price" Foreground="#80FFFFFF"/>
-                            <TextBox x:Name="txtPrice" Style="{StaticResource ModernInputStyle}" Text="0"/>
+                            <TextBox x:Name="txtPrice" Style="{StaticResource ModernInputStyle}" Text="0" TextChanged="PricingInput_Changed"/>
                         </StackPanel>
                     </UniformGrid>
+                    <TextBlock x:Name="txtConvertedPrices" Foreground="#FFD700" Margin="0,8,0,0" TextWrapping="Wrap"/>
 
                     <TextBlock Text="Stock Quantity" Foreground="#80FFFFFF" Margin="0,10,0,5"/>
                     <TextBox x:Name="txtStock" Style="{StaticResource ModernInputStyle}" Text="0"/>

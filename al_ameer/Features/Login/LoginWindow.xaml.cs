@@ -4,6 +4,8 @@ using Microsoft.Data.SqlClient; // Note: Modern WPF apps use Microsoft.Data.SqlC
 using System.Windows;
 using System.Windows.Input;
 using al_ameer.Features.Home;
+using al_ameer.Auth;
+using al_ameer.Data;
 
 namespace al_ameer.Features.Login
 {
@@ -11,7 +13,7 @@ namespace al_ameer.Features.Login
     {
         // UPDATED: Connection string points to 'al_ameer' database
         // Replace 'YOUR_SERVER_NAME' with your actual SQL Server name (e.g., . or SQLEXPRESS)
-        private readonly string connectionString = @"Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connectionString = DatabaseConfig.ConnectionString;
 
         public LoginWindow()
         {
@@ -38,9 +40,7 @@ namespace al_ameer.Features.Login
             }
 
             // Attempt Login
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            string authenticatedUserFullName = ValidateLogin(user, pass);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            string? authenticatedUserFullName = ValidateLogin(user, pass);
 
             if (authenticatedUserFullName != null)
             {
@@ -75,20 +75,28 @@ namespace al_ameer.Features.Login
 
                     // SQL query matching your new table structure
                     // We check IsActive = 1 to ensure the account isn't disabled
-                    string query = "SELECT FullName FROM Users WHERE Username = @user AND PasswordHash = @pass AND IsActive = 1";
+                    string query = "SELECT UserId, FullName, PasswordHash FROM Users WHERE Username = @user AND IsActive = 1";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@user", username);
-                        cmd.Parameters.AddWithValue("@pass", password);
-
-                        object result = cmd.ExecuteScalar();
-
-                        if (result != null)
+                        using SqlDataReader reader = cmd.ExecuteReader();
+                        if (reader.Read())
                         {
-#pragma warning disable CS8603 // Possible null reference return.
-                            return result.ToString(); // Returns the FullName
-#pragma warning restore CS8603 // Possible null reference return.
+                            int id = reader.GetInt32(0);
+                            string fullName = reader.GetString(1);
+                            string stored = reader.GetString(2);
+                            if (!PasswordHasher.Verify(password, stored, out bool upgrade)) return null;
+                            reader.Close();
+                            if (upgrade)
+                            {
+                                using var update = new SqlCommand("UPDATE Users SET PasswordHash = @hash WHERE UserId = @id AND PasswordHash = @old", conn);
+                                update.Parameters.Add("@hash", SqlDbType.NVarChar, -1).Value = PasswordHasher.Hash(password);
+                                update.Parameters.Add("@old", SqlDbType.NVarChar, -1).Value = stored;
+                                update.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                                update.ExecuteNonQuery();
+                            }
+                            return fullName;
                         }
                     }
                 }

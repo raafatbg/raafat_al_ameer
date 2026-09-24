@@ -8,7 +8,7 @@ namespace al_ameer.Features.Expenses
 {
     public partial class ExpensesPage : Page
     {
-        private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connString = al_ameer.Data.DatabaseConfig.ConnectionString;
 
         public ExpensesPage()
         {
@@ -23,10 +23,10 @@ namespace al_ameer.Features.Expenses
                 using (SqlConnection conn = new SqlConnection(connString))
                 {
                     // FIXED Query: Includes ExpenseID for the delete button to work
-                    string query = "SELECT ExpenseID, ExpenseDate, Category, Description, Amount FROM Expenses";
+                    string query = "SELECT ExpenseID, ExpenseDate, Category, Description, Amount FROM Expenses WHERE ReversedAt IS NULL";
 
                     if (!string.IsNullOrEmpty(filter))
-                        query += " WHERE Category LIKE @f OR Description LIKE @f";
+                        query += " AND (Category LIKE @f OR Description LIKE @f)";
 
                     query += " ORDER BY ExpenseDate DESC";
 
@@ -65,11 +65,15 @@ namespace al_ameer.Features.Expenses
                     {
                         using (SqlConnection conn = new SqlConnection(connString))
                         {
-                            string query = "DELETE FROM Expenses WHERE ExpenseID = @id";
+                            string query = "DELETE FROM Expenses WHERE ExpenseID = @id AND SalaryEntryId IS NULL";
                             SqlCommand cmd = new SqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@id", btn.Tag);
                             conn.Open();
-                            cmd.ExecuteNonQuery();
+                            if (cmd.ExecuteNonQuery() != 1)
+                            {
+                                MessageBox.Show("Salary expenses are linked to employee payments. Reverse the salary payment in Employees instead.");
+                                return;
+                            }
                             LoadExpenses(txtSearch.Text);
                         }
                     }

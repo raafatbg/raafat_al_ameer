@@ -12,7 +12,7 @@ namespace al_ameer.Features.Reports
     public partial class ReportsPage : Page
     {
         // Database connection string
-        private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connString = al_ameer.Data.DatabaseConfig.ConnectionString;
 
         public ReportsPage()
         {
@@ -61,8 +61,11 @@ namespace al_ameer.Features.Reports
                             (SELECT CAST(SaleDate as DATE) as Date, SUM(GrandTotal) as TotalSales 
                              FROM Sales GROUP BY CAST(SaleDate as DATE)) s
                         FULL OUTER JOIN 
-                            (SELECT CAST(ExpenseDate as DATE) as Date, SUM(Amount) as TotalExp 
-                             FROM Expenses GROUP BY CAST(ExpenseDate as DATE)) e
+                            (SELECT Date, SUM(Amount) as TotalExp FROM
+                                (SELECT CAST(ExpenseDate as DATE) as Date, Amount FROM Expenses
+                                 UNION ALL
+                                 SELECT EntryDate as Date, Amount FROM EmployeeSalaryEntries WHERE EntryType = 'Payment') outflows
+                             GROUP BY Date) e
                         ON s.Date = e.Date
                         ORDER BY ReportDate DESC";
 
@@ -98,9 +101,7 @@ namespace al_ameer.Features.Reports
                     lblNetProfit.Text = $"{(totalRev - totalExp):N0} LBP";
 
                     // Highlight Net Profit color if negative
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                    lblNetProfit.Foreground = (totalRev - totalExp) >= 0 ? Brushes.White : (SolidColorBrush)new BrushConverter().ConvertFrom("#EF4444");
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+                    lblNetProfit.Foreground = (totalRev - totalExp) >= 0 ? Brushes.White : new SolidColorBrush(Color.FromRgb(239, 68, 68));
                 }
             }
             catch (Exception ex)

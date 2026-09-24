@@ -11,6 +11,9 @@
 
         public decimal CostPrice { get; set; }
         public decimal SellingPrice { get; set; }
+        public string Currency { get; set; } = "LBP";
+        public decimal CostPriceUSD { get; set; }
+        public decimal SellingPriceUSD { get; set; }
         public int? StockQuantity { get; set; }
         public bool? IsActive { get; set; }
 

@@ -47,6 +47,7 @@
                     <DataGridTextColumn Header="Sale ID" Binding="{Binding SaleId}" Width="100"/>
                     <DataGridTextColumn Header="Date &amp; Time" Binding="{Binding SaleDate, StringFormat=\{0:dd/MM/yyyy HH:mm\}}" Width="180"/>
                     <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="110"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
                     <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="180"/>
 
                     <DataGridTextColumn Header="Total Amount" 
@@ -67,7 +68,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="View Details" Background="Transparent" Foreground="#FFD700" 
                                             BorderThickness="0" Cursor="Hand" Click="ViewDetails_Click"/>
-                                    <Button Content="Delete" Background="Transparent" Foreground="#FF6B6B" 
+                                    <Button Content="Void" Background="Transparent" Foreground="#FF6B6B" 
                                             BorderThickness="0" Margin="10,0" Cursor="Hand" Click="DeleteSale_Click"/>
                                 </StackPanel>
                             </DataTemplate>

@@ -96,6 +96,9 @@
                 <Button Content="INVENTORY" Style="{StaticResource ActionBtn}" Background="Transparent" 
                         Foreground="White" BorderBrush="#FFD700" BorderThickness="1" Click="ViewInventory_Click"/>
 
+                <Button Content="+ / −  ADJUST STOCK" Style="{StaticResource ActionBtn}" Background="#25252A"
+                        Foreground="#FFD700" Click="AdjustStock_Click" ToolTip="Add or remove stock with a required reason"/>
+
                 <Button Content="FINANCIAL REPORTS" Style="{StaticResource ActionBtn}" Background="Transparent" 
                         Foreground="#FFD700" BorderBrush="#50FFD700" BorderThickness="1" Click="ViewReports_Click"/>
             </StackPanel>

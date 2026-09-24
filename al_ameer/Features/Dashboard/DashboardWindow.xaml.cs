@@ -47,7 +47,7 @@ namespace al_ameer.Features.Dashboard
                     // 4. Today's Revenue Calculation
                     DateTime today = DateTime.Today;
                     decimal todaySales = db.Sales
-                        .Where(s => s.SaleDate >= today)
+                        .Where(s => s.SaleDate >= today && !s.IsVoided)
                         .Sum(s => (decimal?)s.GrandTotal) ?? 0;
 
                     txtTotalSales.Text = todaySales.ToString("N0") + " LBP";
@@ -73,9 +73,15 @@ namespace al_ameer.Features.Dashboard
             NavigationService?.Navigate(new Features.Inventory.InventoryPage());
         }
 
+        private void AdjustStock_Click(object sender, RoutedEventArgs e)
+        {
+            if (new Features.Inventory.StockAdjustmentWindow { Owner = Window.GetWindow(this) }.ShowDialog() == true)
+                LoadStatistics();
+        }
+
         private void ViewReports_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new Features.Reports.ReportsPage());
+            NavigationService?.Navigate(new Features.Reports.FinancialReportsPage());
         }
     }
 }

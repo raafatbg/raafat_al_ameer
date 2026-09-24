@@ -17,6 +17,8 @@ namespace al_ameer.Models
 
         public string? PaymentMethod { get; set; }
         public string? Notes { get; set; }
+        public bool IsVoided { get; set; }
+        public DateTime? VoidedAt { get; set; }
 
         // FIXED: Added Navigation Property to link to Customer table
         public virtual Customer? Customer { get; set; }

@@ -9,6 +9,8 @@
         <SolidColorBrush x:Key="AccentGold" Color="#FFD700"/>
         <SolidColorBrush x:Key="SurfaceCard" Color="#1A1A1E"/>
         <SolidColorBrush x:Key="SurfaceDark" Color="#121215"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#4A3E10"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
 
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -45,7 +47,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content=" Refresh" Click="Refresh_Click" Style="{StaticResource IconButton}" Margin="0,0,20,0" FontSize="12"/>
                     <TextBlock Text="Rate: " Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBox x:Name="txtExchangeRate" Text="90000" Width="100" Height="35" 
+                    <TextBox x:Name="txtExchangeRate" Width="100" Height="35" 
                              Background="{StaticResource SurfaceDark}" Foreground="{StaticResource AccentGold}" 
                              BorderThickness="1" BorderBrush="#33FFD700" TextAlignment="Center" 
                              VerticalContentAlignment="Center" FontWeight="Bold" TextChanged="UpdateCalculations_Changed"/>
@@ -57,12 +59,43 @@
                     <TextBox x:Name="txtSearch" Height="50" FontSize="18" VerticalContentAlignment="Center"
                              Background="Transparent" BorderThickness="0" Foreground="White" 
                              KeyDown="txtSearch_KeyDown" Tag="Search tires..."/>
+                    <TextBlock Text="Scan barcode or search product..." Foreground="#AEB0B4" Margin="4,0,0,0"
+                               VerticalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers><DataTrigger Binding="{Binding Text, ElementName=txtSearch}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                    </TextBlock>
                     <Button HorizontalAlignment="Right" Content="" FontFamily="Segoe MDL2 Assets" 
                             Style="{StaticResource IconButton}" FontSize="20" Click="FocusBarcode_Click" Width="50"/>
                 </Grid>
             </Border>
 
-            <Border Grid.Row="2" Background="#1A1A1A" CornerRadius="15" BorderBrush="#20FFD700" BorderThickness="1">
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="290"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="#1A1A1E" CornerRadius="12" BorderBrush="#33FFD700" BorderThickness="1" Padding="12">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                            <TextBlock Text="BROWSE ITEMS" Foreground="#FFD700" FontWeight="Bold" FontSize="13"/>
+                            <TextBlock Text="Open a folder; double-click an item to add it." Foreground="#AEB0B4" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,8"/>
+                            <Button Content="Refresh list" Width="90" Height="28" HorizontalAlignment="Left"
+                                    Background="#242424" Foreground="#FFD700" BorderBrush="#685700" Click="BrowserRefresh_Click"/>
+                        </StackPanel>
+                        <TreeView x:Name="tvBrowser" Background="#181818" Foreground="White" BorderThickness="0"
+                                  MouseDoubleClick="Browser_DoubleClick">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal" Margin="2,4">
+                                        <TextBlock Text="{Binding Icon}" Foreground="#FFD700" Margin="0,0,7,0"/>
+                                        <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Detail}" Foreground="#B9B9B9" Margin="8,0,0,0" FontSize="11"/>
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </DockPanel>
+                </Border>
+            <Border Grid.Column="2" Background="#1A1A1A" CornerRadius="15" BorderBrush="#20FFD700" BorderThickness="1">
                 <DataGrid x:Name="dgCart" Background="Transparent" BorderThickness="0" Foreground="White"
                           RowBackground="Transparent" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#10FFD700"
                           AutoGenerateColumns="False" CanUserAddRows="False" RowHeight="55" ColumnHeaderHeight="45">
@@ -96,6 +129,7 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ITEM" Binding="{Binding ProductName}" Width="*" ElementStyle="{StaticResource CenteredText}"/>
+                        <DataGridTextColumn Header="TYPE" Binding="{Binding ItemType}" Width="75" ElementStyle="{StaticResource CenteredText}"/>
                         <DataGridTextColumn Header="PRICE" Binding="{Binding SellingPrice, StringFormat={}{0:N0} LBP}" Width="140" ElementStyle="{StaticResource CenteredText}"/>
                         <DataGridTemplateColumn Header="QTY" Width="130">
                             <DataGridTemplateColumn.CellTemplate>
@@ -121,12 +155,13 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
+            </Grid>
         </Grid>
 
         <Border Grid.Column="1" Background="{StaticResource SurfaceCard}" CornerRadius="20" Padding="32">
             <StackPanel>
                 <TextBlock Text="CUSTOMER" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                <Border Background="{StaticResource SurfaceDark}" CornerRadius="12" Padding="20" MouseDown="AddCustomer_Click" Cursor="Hand" Margin="0,0,0,30">
+                <Border Background="{StaticResource SurfaceDark}" CornerRadius="12" Padding="16" MouseDown="AddCustomer_Click" Cursor="Hand" Margin="0,0,0,16">
                     <TextBlock x:Name="lblCustomerName" Text="Walk-in Customer" Foreground="White" FontSize="16" FontWeight="SemiBold"/>
                 </Border>
 
@@ -134,21 +169,49 @@
                     <TextBlock Text="Discount (LBP)" Foreground="#9CA3AF" VerticalAlignment="Center"/>
                     <TextBox x:Name="txtDiscount" Text="0" Width="120" HorizontalAlignment="Right" Background="{StaticResource SurfaceDark}" Foreground="White" BorderThickness="0" Padding="5" TextChanged="UpdateCalculations_Changed"/>
                 </Grid>
-                <Grid Margin="0,0,0,30">
+                <Grid Margin="0,0,0,16">
                     <TextBlock Text="Tax (%)" Foreground="#9CA3AF" VerticalAlignment="Center"/>
                     <TextBox x:Name="txtTax" Text="0" Width="120" HorizontalAlignment="Right" Background="{StaticResource SurfaceDark}" Foreground="White" BorderThickness="0" Padding="5" TextChanged="UpdateCalculations_Changed"/>
                 </Grid>
 
                 <TextBlock Text="TOTAL AMOUNT" Foreground="#9CA3AF" HorizontalAlignment="Center" FontSize="13" FontWeight="Bold"/>
-                <TextBlock x:Name="lblTotal" Text="0 LBP" Foreground="White" FontSize="48" FontWeight="ExtraBold" HorizontalAlignment="Center" Margin="0,10"/>
+                <TextBlock x:Name="lblTotal" Text="0 LBP" Foreground="White" FontSize="40" FontWeight="ExtraBold" HorizontalAlignment="Center" Margin="0,8"/>
                 <TextBlock x:Name="lblTotalUSD" Text="$0.00 USD" Foreground="{StaticResource AccentGold}" FontSize="18" HorizontalAlignment="Center"/>
 
-                <Separator Background="#2A2A2F" Margin="0,30" Height="1"/>
+                <Grid Margin="0,20,0,10">
+                    <TextBlock Text="Payment" Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="cbPaymentMethod" Width="120" HorizontalAlignment="Right" SelectedIndex="0" SelectionChanged="PaymentMethod_Changed">
+                        <ComboBoxItem Content="Cash"/><ComboBoxItem Content="Card"/><ComboBoxItem Content="Credit"/>
+                    </ComboBox>
+                </Grid>
+                <TextBlock Text="RECEIVED FROM CUSTOMER" Foreground="#FFD700" FontWeight="SemiBold" FontSize="12" Margin="0,10,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="LBP received" Foreground="#9CA3AF" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtTenderLBP" Height="38" Background="{StaticResource SurfaceDark}" Foreground="White"
+                                 BorderBrush="#5C5000" Padding="9,5" TextChanged="Tender_Changed" ToolTip="Amount handed over in LBP"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="USD received" Foreground="#9CA3AF" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtTenderUSD" Height="38" Background="{StaticResource SurfaceDark}" Foreground="White"
+                                 BorderBrush="#5C5000" Padding="9,5" TextChanged="Tender_Changed" ToolTip="Amount handed over in USD"/>
+                    </StackPanel>
+                </Grid>
+                <Border Background="#121215" BorderBrush="#303038" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,12,0,0">
+                    <StackPanel>
+                        <TextBlock x:Name="lblTenderTotal" Text="Received: 0 LBP" Foreground="White"/>
+                        <TextBlock x:Name="lblChange" Text="Return: 0 LBP ($0.00)" Foreground="#FFD700" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="lblRemaining" Text="Balance due: 0 LBP" Foreground="#B9B9B9" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Separator Background="#2A2A2F" Margin="0,14" Height="1"/>
 
                 <CheckBox x:Name="chkPrintReceipt" Content="Print Receipt after saving" Foreground="White" Margin="0,0,0,20" IsChecked="True"/>
 
-                <Button x:Name="btnComplete" Content="Complete Sale" Click="CompleteSale_Click" 
-                        Background="{StaticResource AccentGold}" Foreground="Black" Height="65" 
+                <Button x:Name="btnComplete" Content="Confirm &amp; Save Receipt" Click="CompleteSale_Click" 
+                        Background="{StaticResource AccentGold}" Foreground="Black" Height="55" 
                         FontWeight="Bold" FontSize="18" Margin="0,0,0,15">
                     <Button.Resources>
                         <Style TargetType="Border">

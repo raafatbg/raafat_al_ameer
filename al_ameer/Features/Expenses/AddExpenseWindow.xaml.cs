@@ -8,7 +8,7 @@ namespace al_ameer.Features.Expenses
 {
     public partial class AddExpenseWindow : Window
     {
-        private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connString = al_ameer.Data.DatabaseConfig.ConnectionString;
 
         public AddExpenseWindow()
         {
@@ -18,7 +18,11 @@ namespace al_ameer.Features.Expenses
         // FIXED: Missing Save Logic
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtAmount.Text)) return;
+            if (!al_ameer.Services.InputParser.TryNonNegativeMoney(txtAmount.Text, out decimal amount) || amount <= 0)
+            {
+                MessageBox.Show("Enter an expense amount greater than zero.");
+                return;
+            }
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -27,7 +31,7 @@ namespace al_ameer.Features.Expenses
 
                 // Note: Ensure your XAML ComboBox is named 'cbCategory' and TextBox is 'txtAmount'
                 cmd.Parameters.AddWithValue("@cat", (cbCategory.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Other");
-                cmd.Parameters.AddWithValue("@amt", decimal.Parse(txtAmount.Text));
+                cmd.Parameters.AddWithValue("@amt", amount);
                 cmd.Parameters.AddWithValue("@desc", txtDescription.Text);
 
                 try

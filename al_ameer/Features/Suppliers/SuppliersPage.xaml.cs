@@ -8,7 +8,7 @@ namespace al_ameer.Features.Suppliers
 {
     public partial class SuppliersPage : Page
     {
-        private readonly string connString = "Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connString = al_ameer.Data.DatabaseConfig.ConnectionString;
 
         public SuppliersPage()
         {
@@ -53,9 +53,7 @@ namespace al_ameer.Features.Suppliers
             var button = sender as Button;
             if (button?.Tag == null) return;
 
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            string id = button.Tag.ToString();
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            if (!int.TryParse(button.Tag.ToString(), out int id)) return;
 
             MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this supplier?",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -66,20 +64,26 @@ namespace al_ameer.Features.Suppliers
                 {
                     using (SqlConnection conn = new SqlConnection(connString))
                     {
-                        string query = "DELETE FROM Suppliers WHERE SupplierID = @id";
+                        string query = @"DELETE FROM Suppliers WHERE SupplierID = @id
+                            AND NOT EXISTS (SELECT 1 FROM Products WHERE SupplierId=@id)
+                            AND NOT EXISTS (SELECT 1 FROM PurchaseOrders WHERE SupplierId=@id)";
                         SqlCommand cmd = new SqlCommand(query, conn);
                         cmd.Parameters.AddWithValue("@id", id);
 
                         conn.Open();
-                        cmd.ExecuteNonQuery();
+                        if (cmd.ExecuteNonQuery() == 0)
+                        {
+                            MessageBox.Show("Supplier is referenced by products or purchases and cannot be deleted.", "Delete blocked", MessageBoxButton.OK, MessageBoxImage.Information);
+                            return;
+                        }
 
                         // Refresh the list after deleting
                         LoadSuppliers(txtSearch.Text);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Cannot delete supplier. They may be linked to existing product stock.",
+                    MessageBox.Show("Cannot delete supplier: " + ex.Message,
                         "Delete Error", MessageBoxButton.OK, MessageBoxImage.Stop);
                 }
             }

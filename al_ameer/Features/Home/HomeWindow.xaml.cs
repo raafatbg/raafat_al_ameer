@@ -9,6 +9,10 @@ using al_ameer.Features.Customers;
 using al_ameer.Features.Suppliers;
 using al_ameer.Features.Expenses;
 using al_ameer.Features.Reports; // Make sure this namespace exists
+using al_ameer.Features.Employees;
+using al_ameer.Features.Settings;
+using al_ameer.Features.Services;
+using al_ameer.Services;
 
 
 namespace al_ameer.Features.Home
@@ -19,6 +23,7 @@ namespace al_ameer.Features.Home
         public HomeWindow()
         {
             InitializeComponent();
+            MainFrame.Navigated += (_, _) => Dispatcher.BeginInvoke(() => UiLanguage.Apply(this));
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight; // Prevents covering taskbar
 
             // Initial Page
@@ -52,6 +57,11 @@ namespace al_ameer.Features.Home
             txtPageTitle.Text = "Inventory Management";
             MainFrame.Navigate(new InventoryPage());
         }
+        private void NavServices_Click(object sender, RoutedEventArgs e)
+        {
+            txtPageTitle.Text = "Services";
+            MainFrame.Navigate(new ServicesPage());
+        }
 
         private void NavSales_Click(object sender, RoutedEventArgs e) 
         {
@@ -63,6 +73,16 @@ namespace al_ameer.Features.Home
         {
             txtPageTitle.Text = "Customer Registry";
             MainFrame.Navigate(new CustomersPage());
+        }
+        private void NavCustomerAccounts_Click(object sender, RoutedEventArgs e)
+        {
+            txtPageTitle.Text = "Customer Accounts";
+            MainFrame.Navigate(new CustomerLedgerPage());
+        }
+        private void NavEmployees_Click(object sender, RoutedEventArgs e)
+        {
+            txtPageTitle.Text = "Employees & Salary";
+            MainFrame.Navigate(new EmployeesPage());
         }
         private void NavSuppliers_Click(object sender, RoutedEventArgs e)
         {
@@ -77,7 +97,12 @@ namespace al_ameer.Features.Home
         private void NavReports_Click(object sender, RoutedEventArgs e) 
         {
             txtPageTitle.Text = "Financial Analytics";
-            MainFrame.Navigate(new ReportsPage());
+            MainFrame.Navigate(new FinancialReportsPage());
+        }
+        private void NavSettings_Click(object sender, RoutedEventArgs e)
+        {
+            txtPageTitle.Text = "Settings / الإعدادات";
+            MainFrame.Navigate(new SettingsPage());
         }
 
 

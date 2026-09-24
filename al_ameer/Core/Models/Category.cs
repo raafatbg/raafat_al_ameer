@@ -7,6 +7,6 @@
         public string? Description { get; set; }
 
         // Relationship: One category can have many products
-        public virtual required ICollection<Product> Products { get; set; }
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

@@ -15,7 +15,7 @@ namespace al_ameer.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=DESKTOP-TVOR3BK;Database=al_ameer;Trusted_Connection=True;TrustServerCertificate=True;");
+            optionsBuilder.UseSqlServer(DatabaseConfig.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

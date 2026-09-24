@@ -15,9 +15,18 @@
 
             <TextBlock Text="SELECT CUSTOMER" Foreground="#FFD700" FontWeight="Bold" Margin="0,0,0,15"/>
 
-            <TextBox x:Name="txtSearch" Grid.Row="1" Height="40" Background="#1A1A1E" 
-                     Foreground="White" BorderBrush="#FFD700" Padding="10,0"
-                     VerticalContentAlignment="Center" TextChanged="txtSearch_TextChanged"/>
+            <Grid Grid.Row="1" Height="40">
+                <TextBox x:Name="txtSearch" Background="#1A1A1E" Foreground="White"
+                         BorderBrush="#FFD700" Padding="10,0" VerticalContentAlignment="Center"
+                         TextChanged="txtSearch_TextChanged"/>
+                <TextBlock Text="Search name or phone..." Foreground="#AEB0B4" Margin="11,0,0,0"
+                           VerticalAlignment="Center" IsHitTestVisible="False">
+                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers><DataTrigger Binding="{Binding Text, ElementName=txtSearch}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                </TextBlock>
+            </Grid>
 
             <ListBox x:Name="lstCustomers" Grid.Row="2" Margin="0,15" Background="Transparent" 
                      BorderThickness="0" Foreground="White" DisplayMemberPath="FullName"
@@ -26,6 +35,13 @@
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Padding" Value="10"/>
                         <Setter Property="Margin" Value="0,2"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#343127"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#4A3E10"/><Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
